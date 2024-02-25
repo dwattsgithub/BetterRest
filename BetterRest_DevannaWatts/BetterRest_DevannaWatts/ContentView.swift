@@ -18,9 +18,6 @@ struct ContentView: View {
     @State private var wakeUp = defaultWakeTime
     @State private var sleepAmount = 8.0
     @State private var coffeeAmount = 1
-    @State private var alertTitle = ""
-    @State private var alertMessage = ""
-    @State private var showingAlert = false
 
     static var defaultWakeTime: Date {
         var components = DateComponents()
@@ -44,30 +41,27 @@ struct ContentView: View {
                 }
 
                 Section(header: Text("Daily coffee intake")) {
-                    Stepper(value: $coffeeAmount, in: 1...20) {
-                        Text(coffeeAmount == 1 ? "1 cup" : "\(coffeeAmount) cups")
+                    Picker("Number of cups", selection: $coffeeAmount) {
+                        ForEach(1..<21) { number in
+                            Text("\(number) cup\(number > 1 ? "s" : "")")
+                        }
                     }
+                    .pickerStyle(WheelPickerStyle())
                 }
 
-                Section {
-                    Button("Calculate Ideal Bedtime") {
-                        calculateBedtime()
-                    }
+                Section(header: Text("Recommended Bedtime")) {
+                    Text(calculateBedtime())
+                        .font(.largeTitle)
+                        .frame(maxWidth: .infinity, alignment: .center)
                 }
             }
             .navigationBarTitle("BetterRest")
-            .alert(isPresented: $showingAlert) {
-                Alert(title: Text(alertTitle), message: Text(alertMessage), dismissButton: .default(Text("OK")))
-            }
         }
     }
 
-    func calculateBedtime() {
-        // Simple calculation for demonstration
+    func calculateBedtime() -> String {
         let bedtimeHour = (wakeUp.get(.hour) + Int(sleepAmount) + (coffeeAmount * 2)) % 24
-        alertTitle = "Your Ideal Bedtime"
-        alertMessage = "Based on your inputs, your ideal bedtime is around \(bedtimeHour):00."
-        showingAlert = true
+        return "\(bedtimeHour):00"
     }
 }
 
